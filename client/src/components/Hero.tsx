@@ -35,34 +35,46 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-gradient-to-b from-secondary/5 to-background"
+      className="relative h-screen flex items-center justify-center overflow-hidden"
     >
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-        <div className="absolute top-10 left-10 w-64 h-64 bg-primary rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-secondary rounded-full blur-3xl" />
-      </div>
+      {/* Full-Screen Carousel Background */}
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={currentIndex}
+          src={CAROUSEL_IMAGES[currentIndex].src}
+          alt={CAROUSEL_IMAGES[currentIndex].alt}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.8 }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </AnimatePresence>
 
-      <div className="container mx-auto px-4 z-10 grid md:grid-cols-2 gap-12 items-center">
-        {/* Text Content */}
+      {/* Dark Overlay for Text Readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent z-10" />
+
+      {/* Content Overlay */}
+      <div className="container mx-auto px-4 z-20 relative h-full flex items-center">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center md:text-left"
+          className="max-w-lg text-white"
         >
-          <span className="inline-block bg-primary/20 text-secondary px-4 py-2 rounded-full font-bold text-sm mb-6 uppercase tracking-wider">
+          <span className="inline-block bg-primary/80 text-secondary px-4 py-2 rounded-full font-bold text-sm mb-6 uppercase tracking-wider">
             Fast Food Reimagined
           </span>
-          <h1 className="text-6xl md:text-8xl font-black text-secondary leading-[0.9] mb-6">
+          <h1 className="text-6xl md:text-8xl font-black leading-[0.9] mb-6">
             HUNGRY? <br />
-            <span className="text-primary text-shadow-lg">NUSH IT!</span>
+            <span className="text-primary">NUSH IT!</span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-lg mx-auto md:mx-0 font-medium">
+          <p className="text-lg md:text-xl text-white/90 mb-10 font-medium">
             Premium burgers, crispy wraps, and mouth-watering meals made with
             passion.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+          <div className="flex flex-col sm:flex-row gap-4">
             <ScrollLink
               to="burgers"
               smooth={true}
@@ -77,93 +89,34 @@ export function Hero() {
               smooth={true}
               offset={-100}
               duration={800}
-              className="px-8 py-4 bg-white border-2 border-secondary/10 text-secondary rounded-2xl font-bold text-lg hover:bg-secondary/5 hover:border-secondary transition-all cursor-pointer"
+              className="px-8 py-4 bg-white/20 backdrop-blur-md border-2 border-white text-white rounded-2xl font-bold text-lg hover:bg-white/30 transition-all cursor-pointer"
             >
               View Menu
             </ScrollLink>
           </div>
         </motion.div>
-
-        {/* Hero Carousel */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative h-96 md:h-full min-h-[500px]"
-        >
-          <motion.div
-            animate={{ y: [-20, 20, -20] }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="relative z-10 h-full flex items-center justify-center"
-          >
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={currentIndex}
-                src={CAROUSEL_IMAGES[currentIndex].src}
-                alt={CAROUSEL_IMAGES[currentIndex].alt}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.8 }}
-                className="w-full h-auto max-h-full object-cover drop-shadow-2xl transform rotate-3 hover:rotate-6 transition-transform duration-500 rounded-3xl"
-              />
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Carousel Indicators */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {CAROUSEL_IMAGES.map((_, index) => (
-              <motion.button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentIndex
-                    ? "bg-primary w-8"
-                    : "bg-white/50 hover:bg-white"
-                }`}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.95 }}
-                data-testid={`carousel-indicator-${index}`}
-              />
-            ))}
-          </div>
-
-          {/* Floating Elements */}
-          <motion.div
-            animate={{ y: [10, -10, 10], rotate: [0, 10, 0] }}
-            transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-            className="absolute -top-10 -right-10 w-24 h-24 bg-white p-2 rounded-2xl shadow-xl z-20 hidden md:block"
-          >
-            {/* Unsplash: French fries */}
-            <img
-              src="https://images.unsplash.com/photo-1630384060421-a4323ceca5f6?w=200&q=80"
-              alt="Fries"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </motion.div>
-
-          <motion.div
-            animate={{ y: [-15, 15, -15], rotate: [0, -5, 0] }}
-            transition={{ duration: 5, repeat: Infinity, delay: 0.5 }}
-            className="absolute -bottom-5 -left-5 w-32 h-32 bg-white p-2 rounded-2xl shadow-xl z-20 hidden md:block"
-          >
-            {/* Unsplash: Refreshing drink */}
-            <img
-              src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200&q=80"
-              alt="Drink"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </motion.div>
-        </motion.div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+      {/* Carousel Indicators */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-30">
+        {CAROUSEL_IMAGES.map((_, index) => (
+          <motion.button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-3 h-3 rounded-full transition-all ${
+              index === currentIndex ? "bg-primary w-8" : "bg-white/50 hover:bg-white"
+            }`}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.95 }}
+            data-testid={`carousel-indicator-${index}`}
+          />
+        ))}
+      </div>
+
+      {/* Scroll Down Arrow */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce z-20">
         <ScrollLink to="burgers" smooth={true} offset={-100} duration={800}>
-          <ArrowDown className="text-secondary/50 hover:text-primary cursor-pointer w-8 h-8" />
+          <ArrowDown className="text-white/70 hover:text-primary cursor-pointer w-8 h-8" />
         </ScrollLink>
       </div>
     </section>
