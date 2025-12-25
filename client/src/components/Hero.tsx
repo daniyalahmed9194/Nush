@@ -1,8 +1,37 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link as ScrollLink } from "react-scroll";
 import { ArrowDown } from "lucide-react";
+import { useState, useEffect } from "react";
+
+const CAROUSEL_IMAGES = [
+  {
+    src: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80",
+    alt: "Delicious Burger",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=800&q=80",
+    alt: "Crispy Fried Chicken",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&q=80",
+    alt: "Fresh Wrap",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=800&q=80",
+    alt: "Spicy Wings",
+  },
+];
 
 export function Hero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section
       id="hero"
@@ -55,12 +84,12 @@ export function Hero() {
           </div>
         </motion.div>
 
-        {/* Hero Image Animation */}
+        {/* Hero Carousel */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative"
+          className="relative h-96 md:h-full min-h-[500px]"
         >
           <motion.div
             animate={{ y: [-20, 20, -20] }}
@@ -69,16 +98,39 @@ export function Hero() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="relative z-10"
+            className="relative z-10 h-full flex items-center justify-center"
           >
-            {/* Using a placeholder for the hero burger image - replace with real asset */}
-            {/* Unsplash: Delicious gourmet burger with flying ingredients */}
-            <img
-              src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80"
-              alt="Delicious Burger"
-              className="w-full h-auto drop-shadow-2xl transform rotate-3 hover:rotate-6 transition-transform duration-500 rounded-3xl"
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentIndex}
+                src={CAROUSEL_IMAGES[currentIndex].src}
+                alt={CAROUSEL_IMAGES[currentIndex].alt}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.8 }}
+                className="w-full h-auto max-h-full object-cover drop-shadow-2xl transform rotate-3 hover:rotate-6 transition-transform duration-500 rounded-3xl"
+              />
+            </AnimatePresence>
           </motion.div>
+
+          {/* Carousel Indicators */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            {CAROUSEL_IMAGES.map((_, index) => (
+              <motion.button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  index === currentIndex
+                    ? "bg-primary w-8"
+                    : "bg-white/50 hover:bg-white"
+                }`}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.95 }}
+                data-testid={`carousel-indicator-${index}`}
+              />
+            ))}
+          </div>
 
           {/* Floating Elements */}
           <motion.div
