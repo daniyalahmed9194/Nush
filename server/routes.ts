@@ -1,13 +1,40 @@
 import type { Express } from "express";
 import type { Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
+
+// Store connected admin clients
+const adminClients = new Set<WebSocket>();
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Setup WebSocket server for real-time notifications
+  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+
+  wss.on("connection", (ws) => {
+    console.log("Admin client connected");
+    adminClients.add(ws);
+
+    ws.on("close", () => {
+      console.log("Admin client disconnected");
+      adminClients.delete(ws);
+    });
+  });
+
+  // Broadcast new order to all connected admin clients
+  function broadcastNewOrder(order: any) {
+    const message = JSON.stringify({ type: "NEW_ORDER", data: order });
+    adminClients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  }
+
   app.get(api.menu.list.path, async (req, res) => {
     const items = await storage.getMenuItems();
     res.json(items);
@@ -29,7 +56,58 @@ export async function registerRoutes(
     }
   });
 
-  await seedDatabase();
+  // Create new order
+  app.post(api.orders.create.path, async (req, res) => {
+    try {
+      console.log("Received order request:", req.body);
+      const input = api.orders.create.input.parse(req.body);
+      const order = await storage.createOrder(input);
+      
+      // Broadcast to admin clients
+      broadcastNewOrder(order);
+      
+      res.status(201).json(order);
+    } catch (err) {
+      console.error("Order creation error:", err);
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      return res.status(500).json({
+        message: err instanceof Error ? err.message : "Failed to create order"
+      });
+    }
+  });
+
+  // Get all orders (for admin)
+  app.get(api.orders.list.path, async (req, res) => {
+    const orders = await storage.getOrders();
+    res.json(orders);
+  });
+
+  // Update order status
+  app.patch("/api/orders/:id/status", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+
+      const order = await storage.updateOrderStatus(orderId, status);
+      res.json(order);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to update order status" });
+    }
+  });
+
+  // Seed database without blocking route registration
+  seedDatabase().catch(err => {
+    console.error("Seed database error:", err);
+  });
 
   return httpServer;
 }
