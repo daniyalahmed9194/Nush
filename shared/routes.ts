@@ -3,6 +3,7 @@ import {
   insertMenuItemSchema, 
   insertContactMessageSchema, 
   createOrderRequestSchema,
+  adminLoginSchema,
   menuItems, 
   contactMessages 
 } from './schema';
@@ -11,6 +12,7 @@ export {
   insertMenuItemSchema, 
   insertContactMessageSchema, 
   createOrderRequestSchema,
+  adminLoginSchema,
   menuItems, 
   contactMessages 
 };

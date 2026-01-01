@@ -5,7 +5,12 @@ export function useOrders() {
   return useQuery<OrderWithDetails[]>({
     queryKey: ["orders"],
     queryFn: async () => {
-      const response = await fetch("/api/orders");
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch("/api/orders", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
       }
@@ -58,9 +63,13 @@ export function useUpdateOrderStatus() {
 
   return useMutation({
     mutationFn: async ({ orderId, status }: { orderId: number; status: string }) => {
+      const token = localStorage.getItem("admin_token");
       const response = await fetch(`/api/orders/${orderId}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status }),
       });
 

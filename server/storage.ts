@@ -5,6 +5,7 @@ import {
   customers,
   orders,
   orderItems,
+  admins,
   type MenuItem,
   type InsertMenuItem,
   type InsertContactMessage,
@@ -17,6 +18,8 @@ import {
   type InsertOrderItem,
   type OrderWithDetails,
   type CreateOrderRequest,
+  type Admin,
+  type InsertAdmin,
 } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 
@@ -28,6 +31,8 @@ export interface IStorage {
   createOrder(orderData: CreateOrderRequest): Promise<OrderWithDetails>;
   getOrders(): Promise<OrderWithDetails[]>;
   updateOrderStatus(orderId: number, status: string): Promise<Order>;
+  getAdminByUsername(username: string): Promise<Admin | undefined>;
+  createAdmin(admin: InsertAdmin): Promise<Admin>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -132,6 +137,16 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, orderId))
       .returning();
     return updatedOrder;
+  }
+
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    const [admin] = await db.select().from(admins).where(eq(admins.username, username));
+    return admin;
+  }
+
+  async createAdmin(admin: InsertAdmin): Promise<Admin> {
+    const [newAdmin] = await db.insert(admins).values(admin).returning();
+    return newAdmin;
   }
 }
 

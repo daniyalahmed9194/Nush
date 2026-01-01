@@ -44,11 +44,26 @@ export const orderItems = pgTable("order_items", {
   priceAtTime: integer("price_at_time").notNull(), // price when ordered, in cents
 });
 
+export const admins = pgTable("admins", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(), // hashed password
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertMenuItemSchema = createInsertSchema(menuItems).omit({ id: true });
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({ id: true });
 export const insertCustomerSchema = createInsertSchema(customers).omit({ id: true, createdAt: true });
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true });
+export const insertAdminSchema = createInsertSchema(admins).omit({ id: true, createdAt: true });
+
+// Login schema
+export const adminLoginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 // Validation schema for Pakistan phone numbers
 export const pakistanPhoneSchema = z.string().regex(
@@ -82,6 +97,9 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type CreateOrderRequest = z.infer<typeof createOrderRequestSchema>;
+export type Admin = typeof admins.$inferSelect;
+export type InsertAdmin = z.infer<typeof insertAdminSchema>;
+export type AdminLogin = z.infer<typeof adminLoginSchema>;
 
 // Type for order with customer and items details
 export type OrderWithDetails = Order & {
