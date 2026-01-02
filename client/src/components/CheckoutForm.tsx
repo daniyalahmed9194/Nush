@@ -199,12 +199,12 @@ export default function CheckoutForm({ onBack, onSuccess }: CheckoutFormProps) {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full"
+                className="w-full bg-primary text-secondary rounded-2xl font-black text-lg shadow-xl shadow-primary/30 hover:shadow-2xl hover:-translate-y-1 transition-all"
                 disabled={createOrder.isPending}
               >
                 {createOrder.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                     Placing Order...
                   </>
                 ) : (
