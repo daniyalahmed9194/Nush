@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { api, type InsertContactMessage } from "@shared/routes";
 import { useToast } from "@/hooks/use-toast";
+import { API_ENDPOINTS } from "@/lib/api";
 
 export function useContact() {
   const { toast } = useToast();
@@ -8,7 +9,7 @@ export function useContact() {
   return useMutation({
     mutationFn: async (data: InsertContactMessage) => {
       const validated = api.contact.create.input.parse(data);
-      const res = await fetch(api.contact.create.path, {
+      const res = await fetch(API_ENDPOINTS.contact, {
         method: api.contact.create.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),

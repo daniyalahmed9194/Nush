@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Bell, Loader2, ShoppingBag, User, MapPin, Phone, Clock, LogOut, TrendingUp, PackageCheck, UtensilsCrossed } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { API_ENDPOINTS } from "@/lib/api";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -36,7 +37,7 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("admin_token");
     
     try {
-      await fetch("/api/admin/logout", {
+      await fetch(API_ENDPOINTS.adminLogout, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -53,8 +54,7 @@ export default function AdminDashboard() {
 
   // WebSocket connection for real-time orders
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+    const ws = new WebSocket(API_ENDPOINTS.ws);
 
     ws.onopen = () => {
       console.log("Connected to order notifications");

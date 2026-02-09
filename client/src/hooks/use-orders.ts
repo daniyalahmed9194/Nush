@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CreateOrderRequest, OrderWithDetails } from "@shared/schema";
+import { API_ENDPOINTS } from "@/lib/api";
 
 export function useOrders() {
   return useQuery<OrderWithDetails[]>({
     queryKey: ["orders"],
     queryFn: async () => {
       const token = localStorage.getItem("admin_token");
-      const response = await fetch("/api/orders", {
+      const response = await fetch(API_ENDPOINTS.orders, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -26,7 +27,7 @@ export function useCreateOrder() {
     mutationFn: async (orderData: CreateOrderRequest) => {
       console.log("Sending order data:", orderData);
       
-      const response = await fetch("/api/orders", {
+      const response = await fetch(API_ENDPOINTS.orders, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
@@ -64,7 +65,7 @@ export function useUpdateOrderStatus() {
   return useMutation({
     mutationFn: async ({ orderId, status }: { orderId: number; status: string }) => {
       const token = localStorage.getItem("admin_token");
-      const response = await fetch(`/api/orders/${orderId}/status`, {
+      const response = await fetch(API_ENDPOINTS.orderStatus(orderId), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

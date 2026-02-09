@@ -3,6 +3,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import cors from "cors";
 
 const app = express();
 const httpServer = createServer(app);
@@ -33,6 +34,14 @@ export function log(message: string, source = "express") {
 
   console.log(`${formattedTime} [${source}] ${message}`);
 }
+app.use(cors({
+  origin: [
+    'https://yourdomain.com',              // ⬅️ Apna actual domain
+    'https://www.yourdomain.com',          // ⬅️ WWW version bhi
+    'http://localhost:5000',
+  ],
+  credentials: true
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
+import { API_ENDPOINTS } from "@/lib/api";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
 
     try {
-      const response = await fetch("/api/admin/me", {
+      const response = await fetch(API_ENDPOINTS.adminMe, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

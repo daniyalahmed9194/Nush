@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Lock, UtensilsCrossed } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { API_ENDPOINTS } from "@/lib/api";
 
 const ADMIN_CAROUSEL_IMAGES = [
   {
@@ -61,7 +62,7 @@ export default function AdminLogin() {
   const onSubmit = async (data: AdminLogin) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/admin/login", {
+      const response = await fetch(API_ENDPOINTS.adminLogin, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
