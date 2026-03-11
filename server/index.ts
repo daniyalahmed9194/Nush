@@ -34,11 +34,28 @@ const allowedOrigins = Array.from(
   ]),
 );
 
+function normalizeOrigin(value: string) {
+  return value.trim().replace(/\/+$/, "").toLowerCase();
+}
+
+const normalizedAllowedOrigins = new Set(
+  allowedOrigins.map((origin) => normalizeOrigin(origin)),
+);
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      const normalizedOrigin = normalizeOrigin(origin);
+
+      if (normalizedAllowedOrigins.has(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
+      if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
