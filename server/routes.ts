@@ -1,16 +1,117 @@
 import type { Express } from "express";
 import type { Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
+import { adminLoginSchema } from "@shared/schema";
 import { z } from "zod";
+
+// Simple password hashing (in production, use bcrypt)
+async function hashPassword(password: string): Promise<string> {
+  // For now, using a simple hash - in production use bcrypt
+  const crypto = await import("crypto");
+  return crypto.createHash("sha256").update(password).digest("hex");
+}
+
+async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  const passwordHash = await hashPassword(password);
+  return passwordHash === hash;
+}
+
+// In-memory session store (in production, use redis or database)
+const sessions = new Map<string, { adminId: number; username: string }>();
+
+function generateSessionId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+// Middleware to check if admin is authenticated
+function requireAuth(req: any, res: any, next: any) {
+  const sessionId = req.headers.authorization?.replace("Bearer ", "");
+  if (!sessionId || !sessions.has(sessionId)) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  req.admin = sessions.get(sessionId);
+  next();
+}
+
+// Store connected admin clients
+const adminClients = new Set<WebSocket>();
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Setup WebSocket server for real-time notifications
+  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+
+  wss.on("connection", (ws) => {
+    console.log("Admin client connected");
+    adminClients.add(ws);
+
+    ws.on("close", () => {
+      console.log("Admin client disconnected");
+      adminClients.delete(ws);
+    });
+  });
+
+  // Broadcast new order to all connected admin clients
+  function broadcastNewOrder(order: any) {
+    const message = JSON.stringify({ type: "NEW_ORDER", data: order });
+    adminClients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  }
+
   app.get(api.menu.list.path, async (req, res) => {
     const items = await storage.getMenuItems();
     res.json(items);
+  });
+
+  // Admin login
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = adminLoginSchema.parse(req.body);
+      
+      const admin = await storage.getAdminByUsername(username);
+      if (!admin) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const isValid = await verifyPassword(password, admin.password);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const sessionId = generateSessionId();
+      sessions.set(sessionId, { adminId: admin.id, username: admin.username });
+
+      res.json({
+        token: sessionId,
+        admin: { id: admin.id, username: admin.username, name: admin.name },
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  // Admin logout
+  app.post("/api/admin/logout", (req, res) => {
+    const sessionId = req.headers.authorization?.replace("Bearer ", "");
+    if (sessionId) {
+      sessions.delete(sessionId);
+    }
+    res.json({ message: "Logged out" });
+  });
+
+  // Check admin session
+  app.get("/api/admin/me", requireAuth, (req, res) => {
+    res.json(req.admin);
   });
 
   app.post(api.contact.create.path, async (req, res) => {
@@ -29,12 +130,92 @@ export async function registerRoutes(
     }
   });
 
-  await seedDatabase();
+  // Create new order
+  app.post(api.orders.create.path, async (req, res) => {
+    try {
+      console.log("Received order request:", req.body);
+      const input = api.orders.create.input.parse(req.body);
+      const order = await storage.createOrder(input);
+      
+      // Broadcast to admin clients
+      broadcastNewOrder(order);
+      
+      res.status(201).json(order);
+    } catch (err) {
+      console.error("Order creation error:", err);
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      return res.status(500).json({
+        message: err instanceof Error ? err.message : "Failed to create order"
+      });
+    }
+  });
+
+  // Get all orders (for admin) - protected route
+  app.get(api.orders.list.path, requireAuth, async (req, res) => {
+    const orders = await storage.getOrders();
+    res.json(orders);
+  });
+
+  // Update order status - protected route
+  app.patch("/api/orders/:id/status", requireAuth, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+
+      const order = await storage.updateOrderStatus(orderId, status);
+      res.json(order);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to update order status" });
+    }
+  });
+
+  // Seed database without blocking route registration
+  seedDatabase().catch(err => {
+    console.error("Seed database error:", err);
+  });
 
   return httpServer;
 }
 
+async function seedSuperAdmin() {
+  // Get credentials from environment variables
+  const username = process.env.ADMIN_USERNAME || "admin";
+  const password = process.env.ADMIN_PASSWORD || "admin123";
+  const name = process.env.ADMIN_NAME || "Super Admin";
+
+  const existingAdmin = await storage.getAdminByUsername(username);
+  if (existingAdmin) {
+    console.log("✅ Super admin already exists");
+    return;
+  }
+
+  const hashedPassword = await hashPassword(password);
+  await storage.createAdmin({
+    username: username,
+    password: hashedPassword,
+    name: name,
+  });
+  
+  console.log("✅ Super admin created successfully!");
+  console.log("   Username:", username);
+  console.log("   Name:", name);
+  console.log("   ⚠️  Password is set from environment variables");
+  console.log("   🔒 Keep your .env file secure!");
+}
+
 async function seedDatabase() {
+  // Seed super admin first
+  await seedSuperAdmin();
+
   const existingItems = await storage.getMenuItems();
   if (existingItems.length > 0) return;
 

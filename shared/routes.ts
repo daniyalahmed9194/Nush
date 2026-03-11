@@ -1,16 +1,20 @@
-import { z } from "zod";
-import {
-  insertMenuItemSchema,
-  insertContactMessageSchema,
-  menuItems,
-  contactMessages,
-} from "./schema";
+import { z } from 'zod';
+import { 
+  insertMenuItemSchema, 
+  insertContactMessageSchema, 
+  createOrderRequestSchema,
+  adminLoginSchema,
+  menuItems, 
+  contactMessages 
+} from './schema';
 
-export {
-  insertMenuItemSchema,
-  insertContactMessageSchema,
-  menuItems,
-  contactMessages,
+export { 
+  insertMenuItemSchema, 
+  insertContactMessageSchema, 
+  createOrderRequestSchema,
+  adminLoginSchema,
+  menuItems, 
+  contactMessages 
 };
 
 export const errorSchemas = {
@@ -47,6 +51,33 @@ export const api = {
       },
     },
   },
+  orders: {
+    create: {
+      method: 'POST' as const,
+      path: '/api/orders',
+      input: createOrderRequestSchema,
+      responses: {
+        201: z.custom<any>(), // OrderWithDetails
+        400: errorSchemas.validation,
+      },
+    },
+    list: {
+      method: 'GET' as const,
+      path: '/api/orders',
+      responses: {
+        200: z.array(z.custom<any>()), // OrderWithDetails[]
+      },
+    },
+    updateStatus: {
+      method: 'PATCH' as const,
+      path: '/api/orders/:id/status',
+      input: z.object({ status: z.string() }),
+      responses: {
+        200: z.custom<any>(), // Order
+        404: errorSchemas.notFound,
+      },
+    },
+  }
 };
 
 export function buildUrl(

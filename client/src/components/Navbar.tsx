@@ -1,6 +1,7 @@
 import { Link as ScrollLink } from "react-scroll";
 import { useState, useEffect } from "react";
 import { Menu, X, UtensilsCrossed } from "lucide-react";
+import { CartDrawer } from "./CartDrawer";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,6 +64,7 @@ export function Navbar() {
               {item.name}
             </ScrollLink>
           ))}
+          <CartDrawer />
           <ScrollLink
             to="contact"
             smooth={true}
@@ -75,12 +77,15 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden text-secondary"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
-        </button>
+        <div className="md:hidden flex items-center gap-3">
+          <CartDrawer />
+          <button
+            className="text-secondary"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}

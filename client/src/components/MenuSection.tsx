@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import type { MenuItem } from "@shared/schema";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Plus } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface MenuSectionProps {
   id: string;
@@ -85,6 +87,16 @@ export function MenuSection({
 
 function MenuCard({ item, index }: { item: MenuItem; index: number }) {
   const [isHovered, setIsHovered] = useState(false);
+  const { addItem } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = () => {
+    addItem(item);
+    toast({
+      title: "Added to cart!",
+      description: `${item.name} has been added to your cart.`,
+    });
+  };
 
   return (
     <motion.div
@@ -103,7 +115,7 @@ function MenuCard({ item, index }: { item: MenuItem; index: number }) {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full font-bold text-secondary shadow-sm">
-          ${(item.price / 100).toFixed(2)}
+          Rs. {(item.price / 100).toFixed(2)}
         </div>
       </div>
 
@@ -118,11 +130,11 @@ function MenuCard({ item, index }: { item: MenuItem; index: number }) {
         </p>
 
         <button
-          onClick={() => alert(`Added ${item.name} to cart!`)}
-          className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 bg-secondary text-white hover:bg-primary hover:text-secondary hover:shadow-lg group-active:scale-95"
+          onClick={handleAddToCart}
+          className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 bg-secondary text-white hover:bg-primary hover:text-secondary hover:shadow-lg active:scale-95"
         >
-          <ShoppingBag className="w-5 h-5" />
-          {isHovered ? "Add to Order" : "Select"}
+          <Plus className="w-5 h-5" />
+          {isHovered ? "Add to Cart" : "Select"}
         </button>
       </div>
     </motion.div>
