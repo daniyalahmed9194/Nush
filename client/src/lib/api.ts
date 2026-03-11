@@ -1,28 +1,33 @@
-// API Configuration
-// For production: Set VITE_API_URL in .env.production to your Railway/Render backend URL
-// For development: Uses localhost:5000
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// API configuration
+// For production, set either VITE_API_BASE_URL or VITE_API_URL to your Render backend URL.
+// For local development, it falls back to the same-origin path behavior used by Vite.
+const rawApiBaseUrl =
+  import.meta.env.VITE_API_BASE_URL?.trim() ??
+  import.meta.env.VITE_API_URL?.trim() ??
+  "";
+
+export const API_URL = rawApiBaseUrl.replace(/\/+$/, "");
+
+export function withApiBase(path: string): string {
+  if (!API_URL) return path;
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith("/")) return `${API_URL}${path}`;
+  return `${API_URL}/${path}`;
+}
 
 // WebSocket URL - converts http/https to ws/wss
-export const WS_URL = API_URL.replace('https://', 'wss://').replace('http://', 'ws://');
+export const WS_URL = (API_URL || "http://localhost:5000")
+  .replace("https://", "wss://")
+  .replace("http://", "ws://");
 
 // API endpoints
 export const API_ENDPOINTS = {
-  // Menu
-  menu: `${API_URL}/api/menu`,
-  
-  // Orders
-  orders: `${API_URL}/api/orders`,
-  orderStatus: (id: number) => `${API_URL}/api/orders/${id}/status`,
-  
-  // Contact
-  contact: `${API_URL}/api/contact`,
-  
-  // Admin
-  adminLogin: `${API_URL}/api/admin/login`,
-  adminLogout: `${API_URL}/api/admin/logout`,
-  adminMe: `${API_URL}/api/admin/me`,
-  
-  // WebSocket
+  menu: withApiBase("/api/menu"),
+  orders: withApiBase("/api/orders"),
+  orderStatus: (id: number) => withApiBase(`/api/orders/${id}/status`),
+  contact: withApiBase("/api/contact"),
+  adminLogin: withApiBase("/api/admin/login"),
+  adminLogout: withApiBase("/api/admin/logout"),
+  adminMe: withApiBase("/api/admin/me"),
   ws: `${WS_URL}/ws`,
 } as const;
