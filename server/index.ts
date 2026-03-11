@@ -27,6 +27,8 @@ app.use(express.urlencoded({ extended: false }));
 const allowedOrigins = Array.from(
   new Set([
     "https://nush-pearl.vercel.app",
+    "https://nushhh.com",
+    "https://www.nushhh.com",
     ...(process.env.CORS_ORIGINS ?? "")
       .split(",")
       .map((origin) => origin.trim())
