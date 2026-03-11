@@ -4,7 +4,6 @@ import cors from "cors";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
-import cors from "cors";
 
 const app = express();
 const httpServer = createServer(app);
@@ -25,10 +24,15 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
-const allowedOrigins = (process.env.CORS_ORIGINS ?? "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = Array.from(
+  new Set([
+    "https://nush-pearl.vercel.app",
+    ...(process.env.CORS_ORIGINS ?? "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  ]),
+);
 
 app.use(
   cors({
@@ -51,14 +55,6 @@ export function log(message: string, source = "express") {
 
   console.log(`${formattedTime} [${source}] ${message}`);
 }
-app.use(cors({
-  origin: [
-    'https://yourdomain.com',              // ⬅️ Apna actual domain
-    'https://www.yourdomain.com',          // ⬅️ WWW version bhi
-    'http://localhost:5000',
-  ],
-  credentials: true
-}));
 
 app.use((req, res, next) => {
   const start = Date.now();
