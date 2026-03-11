@@ -1,7 +1,17 @@
-import { z } from 'zod';
-import { insertMenuItemSchema, insertContactMessageSchema, menuItems, contactMessages } from './schema';
+import { z } from "zod";
+import {
+  insertMenuItemSchema,
+  insertContactMessageSchema,
+  menuItems,
+  contactMessages,
+} from "./schema";
 
-export { insertMenuItemSchema, insertContactMessageSchema, menuItems, contactMessages };
+export {
+  insertMenuItemSchema,
+  insertContactMessageSchema,
+  menuItems,
+  contactMessages,
+};
 
 export const errorSchemas = {
   validation: z.object({
@@ -19,8 +29,8 @@ export const errorSchemas = {
 export const api = {
   menu: {
     list: {
-      method: 'GET' as const,
-      path: '/api/menu',
+      method: "GET" as const,
+      path: "/api/menu",
       responses: {
         200: z.array(z.custom<typeof menuItems.$inferSelect>()),
       },
@@ -28,18 +38,21 @@ export const api = {
   },
   contact: {
     create: {
-      method: 'POST' as const,
-      path: '/api/contact',
+      method: "POST" as const,
+      path: "/api/contact",
       input: insertContactMessageSchema,
       responses: {
         201: z.custom<typeof contactMessages.$inferSelect>(),
         400: errorSchemas.validation,
       },
     },
-  }
+  },
 };
 
-export function buildUrl(path: string, params?: Record<string, string | number>): string {
+export function buildUrl(
+  path: string,
+  params?: Record<string, string | number>,
+): string {
   let url = path;
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -50,3 +63,5 @@ export function buildUrl(path: string, params?: Record<string, string | number>)
   }
   return url;
 }
+
+export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
