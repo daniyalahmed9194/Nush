@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import type { MenuItem } from "@shared/schema";
-import { ShoppingBag, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,36 +28,29 @@ export function MenuSection({
       : items.filter((item) => item.subcategory === activeFilter);
 
   return (
-    <section id={id} className={`py-20 md:py-32 ${bgColor}`}>
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+    <section id={id} className={`py-24 md:py-32 ${bgColor}`}>
+      <div className="container mx-auto px-5">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
           <div>
-            <h2 className="text-5xl md:text-6xl font-black text-secondary uppercase tracking-tight">
+            <span className="text-primary font-semibold text-xs uppercase tracking-[0.2em] mb-2 block">
+              — Our Menu
+            </span>
+            <h2 className="font-display font-black text-5xl md:text-6xl text-secondary leading-none tracking-tight">
               {title}
             </h2>
-            <div className="h-2 w-24 bg-primary mt-4 rounded-full" />
           </div>
 
           {subcategories && (
             <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setActiveFilter("All")}
-                className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
-                  activeFilter === "All"
-                    ? "bg-secondary text-white shadow-lg shadow-secondary/25"
-                    : "bg-white border border-border text-muted-foreground hover:border-secondary hover:text-secondary"
-                }`}
-              >
-                All
-              </button>
-              {subcategories.map((sub) => (
+              {["All", ...subcategories].map((sub) => (
                 <button
                   key={sub}
                   onClick={() => setActiveFilter(sub)}
-                  className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
+                  className={`px-5 py-2 rounded-full font-semibold text-xs uppercase tracking-wider transition-all duration-200 ${
                     activeFilter === sub
-                      ? "bg-secondary text-white shadow-lg shadow-secondary/25"
-                      : "bg-white border border-border text-muted-foreground hover:border-secondary hover:text-secondary"
+                      ? "bg-secondary text-white shadow-lg shadow-secondary/20"
+                      : "bg-muted text-muted-foreground hover:bg-secondary/10 hover:text-secondary"
                   }`}
                 >
                   {sub}
@@ -68,13 +61,13 @@ export function MenuSection({
         </div>
 
         {filteredItems.length === 0 ? (
-          <div className="text-center py-12 bg-muted/30 rounded-3xl border-2 border-dashed border-border">
-            <p className="text-muted-foreground font-medium text-lg">
+          <div className="text-center py-16 rounded-3xl border-2 border-dashed border-border">
+            <p className="text-muted-foreground font-medium">
               Coming soon to the menu!
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {filteredItems.map((item, index) => (
               <MenuCard key={item.id} item={item} index={index} />
             ))}
@@ -86,7 +79,6 @@ export function MenuSection({
 }
 
 function MenuCard({ item, index }: { item: MenuItem; index: number }) {
-  const [isHovered, setIsHovered] = useState(false);
   const { addItem } = useCart();
   const { toast } = useToast();
 
@@ -100,42 +92,45 @@ function MenuCard({ item, index }: { item: MenuItem; index: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="group bg-white rounded-3xl p-4 shadow-xl shadow-black/5 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 border border-transparent hover:border-primary/20 relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      transition={{ delay: index * 0.08, duration: 0.5, ease: "easeOut" }}
+      className="group bg-white rounded-[1.75rem] overflow-hidden border border-black/5 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/8 hover:-translate-y-1.5 transition-all duration-500 cursor-pointer"
     >
-      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-muted/20">
+      {/* Image */}
+      <div className="relative aspect-[3/2] overflow-hidden bg-muted/20">
         <img
           src={item.imageUrl}
           alt={item.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover group-hover:scale-[1.07] transition-transform duration-700 ease-out"
         />
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full font-bold text-secondary shadow-sm">
-          Rs. {(item.price / 100).toFixed(2)}
+
+        {/* Price badge — bottom left */}
+        <div className="absolute bottom-3 left-3 bg-primary text-secondary font-black text-xs px-3 py-1.5 rounded-full shadow-lg">
+          Rs. {(item.price / 100).toFixed(0)}
+        </div>
+
+        {/* Hover overlay with CTA */}
+        <div className="absolute inset-0 bg-secondary/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <button
+            onClick={handleAddToCart}
+            className="bg-primary text-secondary font-bold px-6 py-2.5 rounded-full text-sm translate-y-3 group-hover:translate-y-0 transition-transform duration-300 shadow-xl flex items-center gap-1.5 hover:scale-105 active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            Add to Cart
+          </button>
         </div>
       </div>
 
-      <div className="px-2 pb-2">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold text-secondary group-hover:text-primary transition-colors">
-            {item.name}
-          </h3>
-        </div>
-        <p className="text-muted-foreground text-sm line-clamp-2 mb-6 h-10">
+      {/* Content */}
+      <div className="p-5">
+        <h3 className="font-display font-bold text-lg text-secondary leading-tight mb-1">
+          {item.name}
+        </h3>
+        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
           {item.description}
         </p>
-
-        <button
-          onClick={handleAddToCart}
-          className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 bg-secondary text-white hover:bg-primary hover:text-secondary hover:shadow-lg active:scale-95"
-        >
-          <Plus className="w-5 h-5" />
-          {isHovered ? "Add to Cart" : "Select"}
-        </button>
       </div>
     </motion.div>
   );

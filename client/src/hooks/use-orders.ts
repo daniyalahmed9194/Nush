@@ -25,21 +25,14 @@ export function useCreateOrder() {
 
   return useMutation({
     mutationFn: async (orderData: CreateOrderRequest) => {
-      console.log("Sending order data:", orderData);
-      
       const response = await fetch(API_ENDPOINTS.orders, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
       });
 
-      console.log("Response status:", response.status);
-      console.log("Response content-type:", response.headers.get("content-type"));
-      
       if (!response.ok) {
         const responseText = await response.text();
-        console.log("Error response text:", responseText);
-        
         let error;
         try {
           error = JSON.parse(responseText);
@@ -49,9 +42,7 @@ export function useCreateOrder() {
         throw new Error(error.message || "Failed to create order");
       }
 
-      const result = await response.json();
-      console.log("Success response:", result);
-      return result;
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });

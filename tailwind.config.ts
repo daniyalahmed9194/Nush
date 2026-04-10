@@ -84,7 +84,7 @@ export default {
       },
       fontFamily: {
         sans: ["Poppins", "sans-serif"],
-        display: ["Poppins", "sans-serif"],
+        display: ["Syne", "sans-serif"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
       },

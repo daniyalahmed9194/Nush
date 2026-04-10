@@ -57,7 +57,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       
-      <div className="bg-white rounded-t-[3rem] relative -mt-10 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div className="bg-white rounded-t-[2.5rem] relative -mt-16 z-20 shadow-[0_-20px_60px_rgba(0,0,0,0.08)]">
         <MenuSection
           id="burgers"
           title="Burgers"
