@@ -2,11 +2,112 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["favicon.png", "pwa-icon.svg", "offline.html"],
+      manifest: {
+        name: "NUSH Admin",
+        short_name: "NUSH",
+        description: "NUSH Restaurant Admin Dashboard — Manage orders in real time",
+        theme_color: "#292974",
+        background_color: "#292974",
+        display: "standalone",
+        start_url: "/admin",
+        scope: "/",
+        orientation: "portrait-primary",
+        icons: [
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "pwa-icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
+          {
+            src: "favicon.png",
+            sizes: "64x64",
+            type: "image/png",
+          },
+        ],
+        shortcuts: [
+          {
+            name: "Orders",
+            short_name: "Orders",
+            url: "/admin/orders",
+            description: "View and manage orders",
+          },
+          {
+            name: "Dashboard",
+            short_name: "Dashboard",
+            url: "/admin",
+            description: "View dashboard metrics",
+          },
+        ],
+      },
+      workbox: {
+        // Cache all static assets
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
+        // Offline fallback for navigation requests
+        navigateFallback: "/offline.html",
+        navigateFallbackAllowlist: [/^\/admin/],
+        runtimeCaching: [
+          // Google Fonts — cache first
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-cache",
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "gstatic-fonts-cache",
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          // Unsplash images — cache first (menu images)
+          {
+            urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "unsplash-images-cache",
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          // API calls — network first, fall back to cache
+          {
+            urlPattern: /\/api\/.*/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "api-cache",
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
+              cacheableResponse: { statuses: [0, 200] },
+              networkTimeoutSeconds: 10,
+            },
+          },
+        ],
+      },
+      devOptions: {
+        enabled: true,
+      },
+    }),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
