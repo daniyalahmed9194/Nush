@@ -10,7 +10,7 @@ export function Footer() {
             <div className="mb-5">
               <div className="inline-flex items-center gap-2 bg-primary px-3 py-1.5 rounded-lg mb-5">
                 <span className="font-display font-black text-xl text-secondary tracking-tighter leading-none">
-                  NUSH
+                  SMART COOK
                 </span>
               </div>
               <p className="text-white/50 text-sm leading-relaxed">
@@ -85,7 +85,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/8 pt-7 flex flex-col sm:flex-row justify-between items-center gap-2 text-white/30 text-xs">
-          <span>© 2024 NUSH Fast Food. All rights reserved.</span>
+          <span>© 2024 Smart Cook. All rights reserved.</span>
           <span className="flex items-center gap-1">
             Made with <span className="text-primary">♥</span> in Pakistan
           </span>

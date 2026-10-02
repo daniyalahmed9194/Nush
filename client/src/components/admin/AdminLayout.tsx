@@ -101,7 +101,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           // System notification (works when app is minimized)
           if ("Notification" in window && Notification.permission === "granted") {
-            const n = new Notification("🔔 New Order — NUSH Admin", {
+            const n = new Notification("🔔 New Order — Smart Cook Admin", {
               body: `${customerName} placed an order for ${total}`,
               icon: "/pwa-icon.svg",
               badge: "/pwa-icon.svg",
@@ -170,7 +170,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <div className="flex items-center gap-2.5 cursor-pointer group">
                 <div className="bg-primary px-3 py-1.5 rounded-lg group-hover:scale-105 transition-transform">
                   <span className="font-display font-black text-lg text-secondary tracking-tighter leading-none">
-                    NUSH
+                    SMART COOK
                   </span>
                 </div>
                 <span className="text-white/50 text-xs font-semibold uppercase tracking-widest">
@@ -244,7 +244,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center gap-2.5">
               <Download className="w-4 h-4 text-secondary flex-shrink-0" />
               <p className="text-secondary text-xs font-semibold">
-                Install NUSH Admin as an app for faster access & notifications
+                Install Smart Cook Admin as an app for faster access & notifications
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">

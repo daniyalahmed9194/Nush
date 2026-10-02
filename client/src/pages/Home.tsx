@@ -42,7 +42,7 @@ export default function Home() {
   // Fallback data if DB is empty to show the UI structure
   const dummyBurger: MenuItem = {
     id: 1,
-    name: "Classic Beef Nush",
+    name: "Classic Beef Smart Cook",
     description: "Juicy beef patty with our signature sauce, lettuce, and cheese.",
     price: 1299,
     category: "Burgers",
@@ -50,7 +50,7 @@ export default function Home() {
     imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80",
   };
   
-  const displayBurgers = burgers.length > 0 ? burgers : [dummyBurger, {...dummyBurger, id: 2, name: "Spicy Chicken Nush", subcategory: "Chicken"}, {...dummyBurger, id: 3, name: "Fish Delight", subcategory: "Fish"}];
+  const displayBurgers = burgers.length > 0 ? burgers : [dummyBurger, {...dummyBurger, id: 2, name: "Spicy Chicken Smart Cook", subcategory: "Chicken"}, {...dummyBurger, id: 3, name: "Fish Delight", subcategory: "Fish"}];
 
   return (
     <div className="min-h-screen bg-background font-sans">

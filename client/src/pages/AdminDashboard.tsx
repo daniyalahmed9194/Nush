@@ -160,7 +160,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-                  NUSH Dashboard
+                  Smart Cook Dashboard
                 </h1>
                 <p className="text-sm text-muted-foreground">
                   {adminName && `Welcome back, ${adminName}`}

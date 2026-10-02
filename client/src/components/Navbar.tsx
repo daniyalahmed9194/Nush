@@ -44,7 +44,7 @@ export function Navbar() {
         >
           <div className="bg-primary px-3 py-1.5 rounded-lg group-hover:scale-105 transition-transform duration-300">
             <span className="font-display font-black text-xl text-secondary tracking-tighter leading-none">
-              NUSH
+              SMART COOK
             </span>
           </div>
         </ScrollLink>

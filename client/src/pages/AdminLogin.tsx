@@ -136,7 +136,7 @@ export default function AdminLogin() {
             <UtensilsCrossed className="w-12 h-12 text-secondary" />
           </div>
           <div>
-            <CardTitle className="text-3xl font-black">NUSH Admin</CardTitle>
+            <CardTitle className="text-3xl font-black">Smart Cook Admin</CardTitle>
             <CardDescription className="mt-2">
               Sign in to access the admin dashboard
             </CardDescription>

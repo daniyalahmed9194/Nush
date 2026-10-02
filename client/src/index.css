@@ -6,14 +6,14 @@
 
 :root {
   /* Brand Colors */
-  --primary: 47 100% 55%;    /* #ffce1b - Bright Yellow */
-  --primary-foreground: 222 47% 11%;
+  --primary: 50 91% 54%;    /* #f5d21f - Smart Cook Gold */
+  --primary-foreground: 0 0% 3%;
   
-  --secondary: 235 48% 31%;  /* #292974 - Deep Blue */
+  --secondary: 0 0% 3%;     /* #080808 - Smart Cook Black */
   --secondary-foreground: 0 0% 100%;
 
-  --accent: 47 100% 55%;
-  --accent-foreground: 235 48% 31%;
+  --accent: 353 79% 50%;    /* #e21b2d - Smart Cook Red */
+  --accent-foreground: 0 0% 100%;
 
   --background: 0 0% 98%;    /* Off-white for clean look */
   --foreground: 222 47% 11%;

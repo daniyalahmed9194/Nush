@@ -78,7 +78,7 @@ export function Hero() {
           >
             HUNGRY?
             <br />
-            <span className="text-primary">NUSH IT.</span>
+            <span className="text-primary">SMART COOK.</span>
           </motion.h1>
 
           {/* Subtitle */}
